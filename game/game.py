@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys, random, copy, math, time
 
 pygame.init()
 
@@ -64,3 +64,55 @@ class Stack:
     
     def __repr__(self): #for testing/debugging
         return str(self.items)
+
+class Board:
+    def __init__(self):
+        self.rows = 6
+        self.columns = 7
+        self.board = [Stack() for column in range(self.columns)] #uses composition - creating more complex objects (board) by combining simpler ones(stack) - also if the board class is scrapped, the stacks would be destroyed too as the form an integral part of the board. 
+        self.full_columns = []
+        self.window_length = 4
+        self.moves_history = []
+    
+    def GetRows(self):
+        return self.rows
+    
+    def GetColumns(self):
+        return self.columns
+
+    def DropPiece(self, column, player_piece):
+        self.board[column].Push(player_piece)
+
+    def IsValidMove(self, column):
+        if not  0 <= column <= 6:
+            return False
+        if self.board[column].GetSize() == 6:
+            return False
+        return True
+    
+    def GetValidMoves(self):
+        valid_moves = [column for column in range(self.columns) if self.IsValidMove(column)]
+        return valid_moves
+    
+    def CheckForWin(self, player_piece):
+        #Check for horizontal win
+        for column in range(self.columns-3): #(column_count - 3) since the last 3 columns can't contain 4 pieces in a row horizontally
+            for row in range(self.rows):
+                if self.board[column].Fetch(row) == player_piece and self.board[column + 1].Fetch(row) == player_piece and self.board[column + 2].Fetch(row) == player_piece and self.board[column + 3].Fetch(row) == player_piece:
+                    return True
+        #Check for vertical win        
+        for column in range(self.columns):
+            for row in range(self.rows-3): #(row_count - 3) since the top 3 rows can't contain 4 pieces in a row vertically
+                if self.board[column].Fetch(row) == player_piece and self.board[column].Fetch(row + 1) == player_piece and self.board[column].Fetch(row + 2) == player_piece and self.board[column].Fetch(row + 3) == player_piece:
+                    return True
+        #Check for win where diagonal going up
+        for column in range(self.columns-3): #can't have a diagonal going up beyond the middle (4th) column so subtract 3
+            for row in range(self.rows-3): #can't have a diagonal going up beyond the 3rd row so subtract 3
+                if self.board[column].Fetch(row) == player_piece and self.board[column + 1].Fetch(row + 1) == player_piece and self.board[column + 2].Fetch(row + 2) == player_piece and self.board[column + 3].Fetch(row + 3) == player_piece:
+                    return True
+        #Check for win where diagonal going down
+        for column in range(self.columns-3): #can't have a diagonal going down beyond the 4th row
+            for row in range(3, self.columns): #cant have a diagonal going down before the 4th column
+                if self.board[column].Fetch(row) == player_piece and self.board[column + 1].Fetch(row - 1) == player_piece and self.board[column + 2].Fetch(row - 2) == player_piece and self.board[column + 3].Fetch(row - 3) == player_piece:
+                    return True
+        return False
