@@ -183,3 +183,73 @@ class Board:
                 print(self.board[column].Fetch(row), end = " ")
             print("")
         print("")
+
+    def DisplayBoard(self, player1, player2):
+        rect = pygame.Rect(0, 0, 100, 100)
+        for column in range(self.columns):
+            for row in range(self.rows):
+                rect.center = ((info.current_w//2) - 300 + column*(SQUARE_SIZE), (info.current_h/2) - 250 + row*(SQUARE_SIZE))
+                pygame.draw.rect(screen, BLUE, rect)
+                pygame.draw.circle(screen, BLACK, ((info.current_w//2) - 300 + column*(SQUARE_SIZE), (info.current_h/2) - 250 + row*(SQUARE_SIZE)), RADIUS)
+        for column in range(self.columns):
+            for row in range(self.rows):        
+                if self.board[column].Fetch(row) == 1:
+                    pygame.draw.circle(screen, player1.GetColour(), ((info.current_w//2) - 300 + column*(SQUARE_SIZE), (info.current_h - ((info.current_h/2) - 250 + row*(SQUARE_SIZE)))), RADIUS) #I don't understand why +280 here, maybe the board isn't actually centred?
+                elif self.board[column].Fetch(row) == 2:
+                    pygame.draw.circle(screen, player2.GetColour(), ((info.current_w//2) - 300 + column*(SQUARE_SIZE), (info.current_h - ((info.current_h/2) - 250 + row*(SQUARE_SIZE)))), RADIUS) #I don't understand why +280 here, maybe the board isn't actually centred?
+        pygame.display.update()
+
+    def is_terminal_node(self):
+        return self.CheckForWin(1) or self.CheckForWin(2) or self.CheckForDraw()
+    
+    def minimax(self, board, depth, alpha, beta, max_player):
+        valid_moves = board.GetValidMoves()
+        is_terminal = board.is_terminal_node()
+        if depth == 0 or is_terminal:
+            if is_terminal:
+                if board.CheckForWin(2):
+                    return (None, 1000000000)
+                elif board.CheckForWin(1):
+                    return (None, -1000000000)
+                else: #game over, so no more valid moves
+                    return (None, 0)
+            else: #depth = zero
+                return (None, board.ScorePosition(2))
+        if max_player:
+            value = -math.inf
+            column = random.choice(valid_moves)
+            for move in valid_moves: #for column in valid columns
+                temp_board = copy.deepcopy(board)
+                temp_board.DropPiece(move, 2)
+                #new_score = max(value, minimax(temp_board, depth-1, False))
+                new_score = board.minimax(temp_board, depth-1, alpha, beta, False)[1]
+                if new_score > value:
+                    value = new_score
+                    column = move
+                alpha = max(alpha, value)
+                if alpha >= beta:
+                    break
+            return column, value
+            
+        else: #for minimising player
+            value = math.inf
+            column = random.choice(valid_moves)
+            for move in valid_moves:
+                temp_board = copy.deepcopy(board)
+                temp_board.DropPiece(move, 1)
+                new_score = board.minimax(temp_board, depth-1, alpha, beta, True)[1]
+                if new_score < value:
+                    value = new_score
+                    column = move
+                beta = min(beta, value)
+                if alpha >= beta:
+                    break
+            return column, value
+    
+    def Store(self, move):
+        self.moves_history.append(move)
+        
+    def Undo(self):
+        for i in range(2):
+            last_move = self.moves_history.pop(-1)
+            self.board[last_move].Pop()
