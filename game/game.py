@@ -253,3 +253,53 @@ class Board:
         for i in range(2):
             last_move = self.moves_history.pop(-1)
             self.board[last_move].Pop()
+
+
+class Player:
+    def __init__(self, piece, turn, colour, username):
+        self.username = username
+        self.piece = piece
+        self.turn = turn
+        self.colour = colour
+    
+    def GetUsername(self):
+        return self.username
+    
+    def GetPiece(self):
+        return self.piece
+    
+    def GetTurn(self):
+        return self.turn
+    
+    def SetTurn(self, new):
+        self.turn = new
+
+    def GetColour(self):
+        return self.colour
+
+class AIPlayer(Player): #Inherits from Player class but still need to implement into the actual game
+    def __init__(self, piece, turn, colour, difficulty):
+        super().__init__(piece, turn, colour, username="")
+        self.difficulty = difficulty
+    
+    def GetUsername(self): #MAKE A BETTER EXAMPLE OF OVERRIDING
+        return "AI Player"
+
+    def GetPiece(self):
+        return self.piece
+    
+    def GetTurn(self):
+        return self.turn
+    
+    def SetTurn(self, new):
+        self.turn = new
+
+    def GetColour(self):
+        return self.colour
+    
+    def GetDifficulty(self):
+        return self.difficulty
+
+board = Board()
+player_one = Player(1, True, RED, "Player 1")
+player_two = AIPlayer(2, False, YELLOW, 6)
