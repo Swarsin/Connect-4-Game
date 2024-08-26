@@ -116,3 +116,70 @@ class Board:
                 if self.board[column].Fetch(row) == player_piece and self.board[column + 1].Fetch(row - 1) == player_piece and self.board[column + 2].Fetch(row - 2) == player_piece and self.board[column + 3].Fetch(row - 3) == player_piece:
                     return True
         return False
+    
+    def EvaluateWindow(self, window, player_piece):
+        score = 0 
+        opponent_piece = 1 #PLAYER_PIECE
+        #evaluating player move:
+        if player_piece == 1:
+            opponent_piece = 2 #AI_PIECE
+        if window.count(player_piece) == 4:
+            score += 100   
+        elif window.count(player_piece) == 3 and window.count(EMPTY) == 1:
+            score += 5
+        elif window.count(player_piece) == 2 and window.count(EMPTY) == 2:
+            score += 2
+        return score
+        
+    def ScorePosition(self, player_piece):
+        score = 0
+
+        #score centre column
+        centre_array = [self.board[self.columns//2].Fetch(row) for row in range(self.rows)]
+        centre_count = centre_array.count(player_piece)
+        score += centre_count * 3
+
+        #score horizontally
+        for row in range(self.rows):
+            row_array = [self.board[column].Fetch(row) for column in range(self.columns)] #creatint an array of the entire row
+            for column in range(4):#(self.column - 3):
+                window = row_array[column:column + self.window_length]
+                score += self.EvaluateWindow(window, player_piece)
+
+        #score vertically
+        for column in range(self.columns):
+            column_array = [self.board[column].Fetch(row) for row in range(self.rows)]
+            for row in range(self.rows - 3):
+                window = column_array[row:row + self.window_length]
+                score += self.EvaluateWindow(window, player_piece)
+
+        #score in a positively sloped diagonal
+        for row in range(self.rows - 3):
+            for column in range(self.columns - 3):
+                window = [self.board[column + i].Fetch(row + i) for i in range(self.window_length)]
+                score += self.EvaluateWindow(window, player_piece)
+
+        #score in a negatively sloped diagonal
+        for row in range(self.rows - 3):
+            for column in range(self.columns - 3):
+                window = [self.board[column + 3 - i].Fetch(row + i) for i in range(self.window_length)]
+                score += self.EvaluateWindow(window, player_piece)
+
+        return score
+    
+    def CheckForDraw(self):
+        for column in range(self.columns):
+            if self.board[column].GetSize() == 6:
+                if column not in self.full_columns:
+                    self.full_columns.append(column)
+        if len(self.full_columns) == 7:
+            return True
+        return False
+        
+
+    def PrintBoard(self): #displays on terminal - for original testing before GUI
+        for row in range(self.rows - 1, -1, -1): #is self.rows - 1 because the row indices is 0 to 5 and this for loops runs from 0 to 5 (matches the row indices of the board)
+            for column in range(self.columns):
+                print(self.board[column].Fetch(row), end = " ")
+            print("")
+        print("")
