@@ -164,6 +164,7 @@ class Board:
             for column in range(self.columns - 3):
                 window = [self.board[column + 3 - i].Fetch(row + i) for i in range(self.window_length)]
                 score += self.EvaluateWindow(window, player_piece)
+                
 
         return score
     
@@ -303,3 +304,65 @@ class AIPlayer(Player): #Inherits from Player class but still need to implement 
 board = Board()
 player_one = Player(1, True, RED, "Player 1")
 player_two = AIPlayer(2, False, YELLOW, 6)
+
+
+
+def Main(player1, player2, board1):
+    game_over = False
+    last_click_time = 0
+    board1.PrintBoard()
+    board1.DisplayBoard(player1, player2)
+    while not game_over:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                if event.type == pygame.MOUSEMOTION:
+                    pygame.draw.rect(screen, BLACK, (0, 0, info.current_w, ((info.current_h-600)/2)))
+                    x_pos = event.pos[0]
+                    if player1.GetTurn():
+                        pygame.draw.circle(screen, player1.GetColour(), (x_pos, (((info.current_h-600)/2)-RADIUS)), RADIUS)
+                    else:
+                        pygame.draw.circle(screen, player2.GetColour(), (x_pos, (((info.current_h-600)/2)-RADIUS)), RADIUS)
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        try:
+                            board1.Undo()
+                            board1.PrintBoard()
+                            board1.DisplayBoard(player1, player2)
+                        except Exception:
+                            continue
+                        # if player1.GetTurn():
+                        #     player2.SetTurn(False)
+                        #     player1.SetTurn(True)
+                        # else:
+                        #     player2.SetTurn(True)
+                        #     player1.SetTurn(False)
+                        #continue
+                # board1.PrintBoard()
+                # board1.DisplayBoard(player1, player2)
+                pygame.display.update()
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    current_time = pygame.time.get_ticks()
+                    if current_time - last_click_time > 1000:
+                        last_click_time = current_time
+                        x_pos = event.pos[0]
+                        current_column = (x_pos - ((info.current_w - 700)//2)) // SQUARE_SIZE #floor division to get whole number value of column, -600 to offset the 600 pixels i added to centre the board 
+                        if not board1.IsValidMove(current_column): #doesn't allow user to drop piece outside the board
+                            continue
+                        if player1.GetTurn():                            # player2.SetTurn(True)
+                            board1.DropPiece(current_column, player1.GetPiece())
+                            board1.Store(current_column)
+                            if board1.CheckForWin(player1.GetPiece()):
+                                text = font.render("Player One won!", 1, player1.GetColour())
+                                text_rect = text.get_rect(center=(info.current_w/2, 76//2))
+                                screen.blit(text, text_rect)
+                                game_over = True
+                            elif board1.CheckForDraw():
+                                text = font.render("DRAW!", 1, (255, 255, 255))
+                                text_rect = text.get_rect(center=(info.current_w/2, 76//2))
+                                screen.blit(text, text_rect)
+                                game_over = True
+                            player1.SetTurn(False)
+                            player2.SetTurn(True)
+                            board1.PrintBoard()
+                            board1.DisplayBoard(player1, player2)
