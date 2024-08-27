@@ -33,7 +33,7 @@ class Stack:
         self.items[self.pointer] = item
         self.pointer += 1
 
-    def Pop(self): #change this so it uses pointers - wouldn't get marks as it is right now
+    def Pop(self):
         # if not self.IsEmpty():
         #     return self.items.pop(item)
         if self.pointer < 0:
@@ -119,10 +119,10 @@ class Board:
     
     def EvaluateWindow(self, window, player_piece):
         score = 0 
-        opponent_piece = 1 #PLAYER_PIECE
+        opponent_piece = 1 
         #evaluating player move:
         if player_piece == 1:
-            opponent_piece = 2 #AI_PIECE
+            opponent_piece = 2 
         if window.count(player_piece) == 4:
             score += 100   
         elif window.count(player_piece) == 3 and window.count(EMPTY) == 1:
@@ -305,8 +305,6 @@ board = Board()
 player_one = Player(1, True, RED, "Player 1")
 player_two = AIPlayer(2, False, YELLOW, 6)
 
-
-
 def Main(player1, player2, board1):
     game_over = False
     last_click_time = 0
@@ -331,15 +329,6 @@ def Main(player1, player2, board1):
                             board1.DisplayBoard(player1, player2)
                         except Exception:
                             continue
-                        # if player1.GetTurn():
-                        #     player2.SetTurn(False)
-                        #     player1.SetTurn(True)
-                        # else:
-                        #     player2.SetTurn(True)
-                        #     player1.SetTurn(False)
-                        #continue
-                # board1.PrintBoard()
-                # board1.DisplayBoard(player1, player2)
                 pygame.display.update()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     current_time = pygame.time.get_ticks()
@@ -349,7 +338,7 @@ def Main(player1, player2, board1):
                         current_column = (x_pos - ((info.current_w - 700)//2)) // SQUARE_SIZE #floor division to get whole number value of column, -600 to offset the 600 pixels i added to centre the board 
                         if not board1.IsValidMove(current_column): #doesn't allow user to drop piece outside the board
                             continue
-                        if player1.GetTurn():                            # player2.SetTurn(True)
+                        if player1.GetTurn():
                             board1.DropPiece(current_column, player1.GetPiece())
                             board1.Store(current_column)
                             if board1.CheckForWin(player1.GetPiece()):
@@ -366,3 +355,26 @@ def Main(player1, player2, board1):
                             player2.SetTurn(True)
                             board1.PrintBoard()
                             board1.DisplayBoard(player1, player2)
+
+            if player2.GetTurn() and not game_over:
+                ai_move = board1.minimax(board1, player2.GetDifficulty(), -math.inf, math.inf, True)[0]
+                board1.DropPiece(ai_move, 2)#board1.DropPiece(random.randint(0, 6), 2)
+                board1.Store(ai_move)
+                if board1.CheckForWin(player2.GetPiece()):
+                    text = font.render("AI Player won!", 1, player2.GetColour())
+                    text_rect = text.get_rect(center=(info.current_w/2, 75//2))
+                    screen.blit(text, text_rect)
+                    game_over = True
+                elif board1.CheckForDraw():
+                    text = font.render("DRAW!", 1, (255, 255, 255))
+                    text_rect = text.get_rect(center=(info.current_w/2, 75//2))
+                    screen.blit(text, text_rect)
+                    game_over = True   
+                player2.SetTurn(False)
+                player1.SetTurn(True)
+                board1.PrintBoard()
+                board1.DisplayBoard(player1, player2)
+            if game_over:
+                pygame.time.wait(3000)
+
+Main(player_one, player_two, board)
