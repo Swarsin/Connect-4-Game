@@ -1,10 +1,16 @@
 import pygame, sys, random, copy, math, time
+
 #Libraries used:
 #Pygame - GUI for the game, displays board and allows the user to drop pieces onto the board
 #sys - sys.exit() upon user quitting window
 #random - to randomly choose who gets first turn
 #copy - to create a deepcopy of the game board class - used to evaluate simulated game states and decide best move in Minimax algorithm
 #math - math.inf for best and -math.inf for worst possibe move in minimax
+
+#To Do:
+#Menu system - using pygame_menu
+#Hashing in login screen
+#Possible Aggregate SQL Functions to display (in leaderboard screen) total games played, average wins, other details 
 
 pygame.init()
 
@@ -429,12 +435,10 @@ class AIPlayer(Player): #Inherits from Player class but still need to implement 
     def GetDifficulty(self):
         return self.difficulty
 
-
 board = Board()
 player_one = Player(1, False, RED, "Player 1")
 player_two = AIPlayer(2, True, YELLOW, 5)
 mcts = MCTS(board, player_one, player_two)
-
 
 def MainMCTS(player1, player2, board1, mcts_obj):
     game_over = False
@@ -460,7 +464,6 @@ def MainMCTS(player1, player2, board1, mcts_obj):
                             board1.DisplayBoard(player1, player2)
                         except Exception:
                             continue
-                        #ignore this
                         # if player1.GetTurn():
                         #     player2.SetTurn(False)
                         #     player1.SetTurn(True)
@@ -485,3 +488,42 @@ def MainMCTS(player1, player2, board1, mcts_obj):
                             board1.Store(current_column)
                             player1.SetTurn(False)
                             player2.SetTurn(True)
+                            if board1.CheckForWin(player1.GetPiece()):
+                                text = font.render("Player One wins!", 1, player1.GetColour())
+                                text_rect = text.get_rect(center=(info.current_w/2, 76//2))
+                                screen.blit(text, text_rect)
+                                game_over = True
+                            elif board1.CheckForDraw():
+                                text = font.render("DRAW!", 1, (255, 255, 255))
+                                text_rect = text.get_rect(center=(info.current_w/2, 76//2))
+                                screen.blit(text, text_rect)
+                                game_over = True
+                            board1.PrintBoard()
+                            board1.DisplayBoard(player1, player2)
+
+            if player2.GetTurn() and not game_over:
+                mcts_obj.Search(player2.GetDifficulty())
+                ai_move = mcts_obj.GetBestMove()#board1.minimax(board1, player2.GetDifficulty(), -math.inf, math.inf, True)[0]
+                #ai_move = mcts.Search(board, player1, player2)
+                board1.DropPiece(ai_move, 2)#board1.DropPiece(random.randint(0, 6), 2)
+                mcts_obj.UpdateMove(ai_move)
+                board1.Store(ai_move)
+                print(mcts_obj.GetStatistics())
+                if board1.CheckForWin(player2.GetPiece()):
+                    text = font.render("AI Player wins!", 1, player2.GetColour())
+                    text_rect = text.get_rect(center=(info.current_w/2, 75//2))
+                    screen.blit(text, text_rect)
+                    game_over = True
+                elif board1.CheckForDraw():
+                    text = font.render("DRAW!", 1, (255, 255, 255))
+                    text_rect = text.get_rect(center=(info.current_w/2, 75//2))
+                    screen.blit(text, text_rect)
+                    game_over = True   
+                player2.SetTurn(False)
+                player1.SetTurn(True)
+                board1.PrintBoard()
+                board1.DisplayBoard(player1, player2)
+            if game_over:
+                pygame.time.wait(3000)
+
+MainMCTS(player_one, player_two, board, mcts)
