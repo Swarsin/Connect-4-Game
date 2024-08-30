@@ -6,16 +6,6 @@ import pygame, sys, random, copy, math, time
 #copy - to create a deepcopy of the game board class - used to evaluate simulated game states and decide best move in Minimax algorithm
 #math - math.inf for best and -math.inf for worst possibe move in minimax
 
-#Band A:
-#Recursive Merge sort - has recursion and merge sort (implemented in leaderboard)
-#Optimisation for Minimax algorithm - aplha beta pruning which stops exploring for further moves if a bad enough score is found for a move
-#Stack and Stack operations - each column in the game board is a stack, and pieces are pushed onto the stack/column
-#Complex user-define use of OOP model e.g. classes, inheritance, composition, polymorphism, interfaces
-#To Do:
-#Hashing in login screen
-#Possible Aggregate SQL Functions to display (in leaderboard screen) total games played, average wins, other details 
-#If really needed could implement MCTS as another AI Player algorithm
-
 pygame.init()
 
 SQUARE_SIZE = 100
@@ -315,7 +305,7 @@ class MCTS:
 
     def Select(self):
         node = self.root
-        state = copy.deepcopy(self.root)
+        state = copy.deepcopy(self.root_state)
 
         while len(node.children) != 0:
             children = node.children
@@ -345,7 +335,7 @@ class MCTS:
     def Simulate(self, state):
         while not state.is_terminal_node():
             state.SimulateMove(random.choice(state.GetValidMoves()), self.player1, self.player2)
-        return (self.player1.GetPiece() if state.CheckForWin(self.player1.GetPiece()) else self.player2.GetPiece() if state.CheckForWin(self.player2.GetPiece()) else False)
+        return (self.player1.GetPiece() if state.CheckForWin(self.player1.GetPiece()) else self.player2.GetPiece() if state.CheckForWin(self.player2.GetPiece()) else None)
     
 
     def Backpropagate(self, node, turn, outcome):
@@ -371,8 +361,8 @@ class MCTS:
             simulations += 1
 
         run_time = time.process_time() - start_time
-        self.run_time, self.simulations, = run_time, simulations
-        return run_time
+        self.run_time = run_time
+        self.simulations = simulations
 
     def GetBestMove(self):
         if self.root_state.is_terminal_node():
@@ -382,3 +372,59 @@ class MCTS:
         best_child = random.choice(max_nodes)
         print(best_child.move)
         return best_child.move
+    
+    def UpdateMove(self, move):
+        if move in self.root.children:
+            self.root_state.SimulateMove(move, self.player1, self.player2)
+            self.root = self.root.children[move]
+        
+        self.root_state.SimulateMove(move, self.player1, self.player2)
+        self.root = Node(None, None)
+    
+    def GetStatistics(self):
+        return self.run_time, self.simulations
+
+class Player:
+    def __init__(self, piece, turn, colour, username):
+        self.username = username
+        self.piece = piece
+        self.turn = turn
+        self.colour = colour
+    
+    def GetUsername(self):
+        return self.username
+    
+    def GetPiece(self):
+        return self.piece
+    
+    def GetTurn(self):
+        return self.turn
+    
+    def SetTurn(self, new):
+        self.turn = new
+
+    def GetColour(self):
+        return self.colour
+
+class AIPlayer(Player): #Inherits from Player class but still need to implement into the actual game
+    def __init__(self, piece, turn, colour, difficulty):
+        super().__init__(piece, turn, colour, username="")
+        self.difficulty = difficulty
+    
+    def GetUsername(self): #MAKE A BETTER EXAMPLE OF OVERRIDING
+        return "AI Player"
+
+    def GetPiece(self):
+        return self.piece
+    
+    def GetTurn(self):
+        return self.turn
+    
+    def SetTurn(self, new):
+        self.turn = new
+
+    def GetColour(self):
+        return self.colour
+    
+    def GetDifficulty(self):
+        return self.difficulty
