@@ -1,4 +1,20 @@
 import pygame, sys, random, copy, math, time
+#Libraries used:
+#Pygame - GUI for the game, displays board and allows the user to drop pieces onto the board
+#sys - sys.exit() upon user quitting window
+#random - to randomly choose who gets first turn
+#copy - to create a deepcopy of the game board class - used to evaluate simulated game states and decide best move in Minimax algorithm
+#math - math.inf for best and -math.inf for worst possibe move in minimax
+
+#Band A:
+#Recursive Merge sort - has recursion and merge sort (implemented in leaderboard)
+#Optimisation for Minimax algorithm - aplha beta pruning which stops exploring for further moves if a bad enough score is found for a move
+#Stack and Stack operations - each column in the game board is a stack, and pieces are pushed onto the stack/column
+#Complex user-define use of OOP model e.g. classes, inheritance, composition, polymorphism, interfaces
+#To Do:
+#Hashing in login screen
+#Possible Aggregate SQL Functions to display (in leaderboard screen) total games played, average wins, other details 
+#If really needed could implement MCTS as another AI Player algorithm
 
 pygame.init()
 
@@ -299,7 +315,7 @@ class MCTS:
 
     def Select(self):
         node = self.root
-        state = copy.deepcopy(self.root_state)
+        state = copy.deepcopy(self.root)
 
         while len(node.children) != 0:
             children = node.children
@@ -325,3 +341,44 @@ class MCTS:
         children = [Node(move, parent) for move in state.GetValidMoves()]
         parent.CreateChildren(children)
         return True
+    
+    def Simulate(self, state):
+        while not state.is_terminal_node():
+            state.SimulateMove(random.choice(state.GetValidMoves()), self.player1, self.player2)
+        return (self.player1.GetPiece() if state.CheckForWin(self.player1.GetPiece()) else self.player2.GetPiece() if state.CheckForWin(self.player2.GetPiece()) else False)
+    
+
+    def Backpropagate(self, node, turn, outcome):
+        reward = 0 if outcome == turn else 1
+
+        if node is not None:
+            node.total_games += 1
+            node.wins += reward
+            if outcome is not None:
+                self.Backpropagate(node.parent, turn, None)
+            else:
+                self.Backpropagate(node.parent, turn, 1 - reward)
+                
+    def Search(self, time_limit):
+        start_time = time.process_time()
+
+        simulations = 0
+
+        while time.process_time() - start_time < time_limit:
+            node, state = self.Select()
+            outcome = self.Simulate(state)
+            self.Backpropagate(node, self.player1.GetPiece() if self.player1.GetTurn() else self.player2.GetPiece(), outcome)
+            simulations += 1
+
+        run_time = time.process_time() - start_time
+        self.run_time, self.simulations, = run_time, simulations
+        return run_time
+
+    def GetBestMove(self):
+        if self.root_state.is_terminal_node():
+            return -1
+        max_value = max(self.root.children, key=lambda x: x.total_games).total_games
+        max_nodes = [x for x in self.root.children if x.total_games == max_value]
+        best_child = random.choice(max_nodes)
+        print(best_child.move)
+        return best_child.move
