@@ -51,3 +51,51 @@ def search_user(user_id):
     finally:
         conn.close()
 
+def add_user(username, password, user_id):
+    try:
+        conn = sqlite3.connect("c4db.db")
+        cursor = conn.cursor()
+        with conn:
+            cursor.execute("INSERT INTO users VALUES (?, ?, ?, 0)", (user_id, username, password))
+    except Exception as error:
+        print(error)
+    finally:
+        conn.close()
+
+def update_score(username):
+    try:
+        conn = sqlite3.connect("c4db.db")
+        cursor = conn.cursor()
+        with conn:
+            cursor.execute("UPDATE users SET wins = wins + 1 WHERE username = ?", (username,))
+    except Exception as error:
+        print(error)
+    finally:
+        conn.close()
+
+def go_to_leaderboard():
+    # code for opening leaderboard
+    main_menu._open(leaderboard)
+
+def quit_game():
+    # code for back
+    print("Quitting...")
+    exit()
+
+def open_options_menu():
+    main_menu._open(options_menu)
+
+def play_with_friend():
+    # code for play with friend
+    print("Playing with friend...")
+    main_menu._open(login_menu)
+
+def play_with_bot():
+    # code for play with bot
+    print("Playing with bot...")
+    main_menu._open(customise_menu)
+
+def hash_function(input):
+    value = 0
+    [value := value + ord(i) for i in input] #calculates ascii value of a string input
+    return value % 200
