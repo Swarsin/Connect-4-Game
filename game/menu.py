@@ -278,3 +278,69 @@ def update_leaderboard():
     for user in merge_sort(GetList(), wins=lambda x: x[1]):
         i += 1
         leaderboard.add.label(str(i) + ". " + str(user[0]) + "\t\t\t\t\t\twins: " + str(user[1]))
+
+# create main menu
+main_menu = pygame_menu.Menu("Connect Four Game", info.current_w, info.current_h, theme=pygame_menu.themes.THEME_BLUE)
+
+main_menu.add.button("Play game", open_options_menu)
+main_menu.add.button("Leaderboard", go_to_leaderboard)
+main_menu.add.button("Quit", quit_game)
+
+# create game options menu
+options_menu = pygame_menu.Menu("Connect Four Game Options", info.current_w, info.current_h, theme=pygame_menu.themes.THEME_BLUE)
+
+options_menu.add.button("Login & Play with Friend", play_with_friend)
+options_menu.add.button("Play with Bot (No login)", play_with_bot)
+
+# Create leaderboard screen
+leaderboard = pygame_menu.Menu("Leaderboard", info.current_w, info.current_h, theme=pygame_menu.themes.THEME_BLUE)
+
+leaderboard.add.button("Update", update_leaderboard)
+update_leaderboard()
+
+# Create login menu
+login_menu = pygame_menu.Menu("Login for Player 1", info.current_w, info.current_h, theme=pygame_menu.themes.THEME_BLUE)
+username_input = login_menu.add.text_input("Username: ", maxchar=20)  # Add text input for username
+password_input = login_menu.add.text_input("Password: ", maxchar=20, password=True)  # Add password input
+login_menu.add.button("Login", login)  # add login button
+login_menu.add.button("Register", register)  # add register button
+
+
+login_menu_p2 = pygame_menu.Menu("Login for Player 2", info.current_w, info.current_h, theme=pygame_menu.themes.THEME_BLUE)
+username_input_p2 = login_menu_p2.add.text_input("Username: ", maxchar=20)  # Add text input for username
+password_input_p2 = login_menu_p2.add.text_input("Password: ", maxchar=20, password=True)  # Add password input
+login_menu_p2.add.button("Login", login_p2)  # add login button
+login_menu_p2.add.button("Register", register_p2)  # add register button
+login_menu_p2.add.label("Player 1 logged in successfully!")
+
+
+# Create a Pygame Menu
+customise_menu = pygame_menu.Menu("Customise Game", info.current_w, info.current_h, theme=pygame_menu.themes.THEME_BLUE)
+
+# Add four drop-down lists
+drop_down1_choices = [
+    ("Easiest (MCTS)", 5),
+    ("Easier (Minimax)", 1),
+    ("Easy (Minimax)", 2),
+    ("Medium (Minimax)", 4),
+    ("Hard (Minimax)", 6),
+    ("Hardest (Minimax)", 7),
+]
+
+drop_down1 = customise_menu.add.dropselect("Difficulty: ", drop_down1_choices, onchange=None)
+
+drop_down2_choices = [
+    ("Red", (255, 0, 0)),
+    ("Green", (0, 255, 0)),
+    ("Yellow", (255, 255, 0)),
+    ("Purple", (160, 32, 240)),
+]
+
+drop_down2 = customise_menu.add.dropselect("1st Player Colour: ", drop_down2_choices, onchange=None)
+
+drop_down3_choices = [
+    ("Red", (255, 0, 0)),
+    ("Green", (0, 255, 0)),
+    ("Yellow", (255, 255, 0)),
+    ("Purple", (160, 32, 240)),
+]
