@@ -218,4 +218,63 @@ def start_ai_game():
         human_player = Player(1, True if selected_value4[0][1] == 1 else False, selected_value2[0][1], "You")
         ai_player = AIPlayer(2, False if selected_value4[0][1] == 1 else True, selected_value3[0][1], selected_value1[0][1])
         main_menu.disable()
-        main_menu.full_reset() 
+        main_menu.full_reset()
+        screen.fill((0, 0, 0))
+        if selected_value1[1] == 0:
+            mcts = MCTS(board, human_player, ai_player)
+            MainMCTS(human_player, ai_player, board, mcts)
+        else:
+            Main(human_player, ai_player, board)
+        main_menu.enable()
+    except ValueError:
+        if missing_options not in widget_titles:
+            customise_menu.add.label(missing_options)
+    except NameError:
+        if same_colour not in widget_titles:
+            customise_menu.add.label(same_colour)
+
+def start_2p_game():
+    global played_2p
+
+    missing_options = "You must choose an option from all dropdown lists!"
+    same_colour = "Both players can't choose the same colour!"
+    widget_titles = [widget.get_title() for widget in customise_2p.get_widgets()]
+
+    try:
+        selected_value1 = dropdown1_2p.get_value()  # get_value() returns the user choice as a tuple (since that's how it's defined in the code) with the index of the selected choice in the corresponding choices array
+        selected_value2 = dropdown2_2p.get_value()  # example: (('Hard', 4), 3), (('Green', (0, 255, 0)), 1), (('Blue', (0, 0, 255)), 2), (('Player 1', 1), 0)
+        selected_value3 = dropdown3_2p.get_value()
+        if selected_value1 == selected_value2:
+            raise NameError
+        played_2p = False
+        p1_details = login()
+        p2_details = login_p2()
+        board = Board()
+        player_one = Player(1, True if selected_value3[0][1] == 1 else False, selected_value1[0][1], p1_details[0])
+        player_two = Player(2, False if selected_value3[0][1] == 1 else True, selected_value2[0][1], p2_details[0])
+        main_menu.disable()
+        #main_menu.full_reset() 
+        screen.fill((0, 0, 0))
+        winner = Main_2p(player_one, player_two, board)
+        if winner != None:
+            update_score(winner)
+        main_menu.enable()
+    except ValueError:
+        if missing_options not in widget_titles:
+            customise_2p.add.label(missing_options)
+    except NameError:
+        if same_colour not in widget_titles:
+            customise_2p.add.label(same_colour)
+
+def remove_all_widgets(menu):
+    for widget in menu.get_widgets():
+        menu.remove_widget(widget)
+
+def update_leaderboard():
+    remove_all_widgets(leaderboard)
+    # main_menu._open(leaderboard)
+    leaderboard.add.button("Update", update_leaderboard)
+    i = 0
+    for user in merge_sort(GetList(), wins=lambda x: x[1]):
+        i += 1
+        leaderboard.add.label(str(i) + ". " + str(user[0]) + "\t\t\t\t\t\twins: " + str(user[1]))
