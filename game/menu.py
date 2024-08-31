@@ -74,7 +74,7 @@ def update_score(username):
         conn.close()
 
 def go_to_leaderboard():
-    # code for opening leaderboard
+    # code for play with bot
     main_menu._open(leaderboard)
 
 def quit_game():
@@ -99,7 +99,6 @@ def hash_function(input):
     value = 0
     [value := value + ord(i) for i in input] #calculates ascii value of a string input
     return value % 200
-
 
 def login():
     user = username_input.get_value()
@@ -153,6 +152,7 @@ def login_p2():
         else:
             if wrong_combo not in widget_titles:
                 login_menu_p2.add.label(wrong_combo)
+
 def register():
     user = username_input.get_value()
     pwd = password_input.get_value()
@@ -218,7 +218,7 @@ def start_ai_game():
         human_player = Player(1, True if selected_value4[0][1] == 1 else False, selected_value2[0][1], "You")
         ai_player = AIPlayer(2, False if selected_value4[0][1] == 1 else True, selected_value3[0][1], selected_value1[0][1])
         main_menu.disable()
-        main_menu.full_reset()
+        main_menu.full_reset() 
         screen.fill((0, 0, 0))
         if selected_value1[1] == 0:
             mcts = MCTS(board, human_player, ai_player)
@@ -344,3 +344,35 @@ drop_down3_choices = [
     ("Yellow", (255, 255, 0)),
     ("Purple", (160, 32, 240)),
 ]
+
+drop_down3 = customise_menu.add.dropselect("2nd Player Colour: ", drop_down3_choices, onchange=None)
+
+drop_down4_choices = [("Player 1", 1), ("Player 2", 2), ("Random", int(random.randint(1,2)))]
+
+drop_down4 = customise_menu.add.dropselect("First Move: ", drop_down4_choices, onchange=None)
+
+# Add a "Play" button to trigger the start_ai_game function
+play = customise_menu.add.button("Play", start_ai_game)
+
+customise_2p = pygame_menu.Menu("2P Customise", info.current_w, info.current_h, theme=pygame_menu.themes.THEME_BLUE)
+
+customise_2p.add.label("Both players logged in successfully!")
+
+dropdown1_2p = customise_2p.add.dropselect("1st Player Colour: ", drop_down2_choices, onchange=None)
+
+dropdown2_2p = customise_2p.add.dropselect("2nd Player Colour: ", drop_down3_choices, onchange=None)
+
+dropdown3_2p = customise_2p.add.dropselect("First Move: ", drop_down4_choices, onchange=None)
+
+play_2p = customise_2p.add.button("Play", start_2p_game)
+
+while True:
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+    if main_menu.is_enabled():
+        main_menu.update(events)
+        main_menu.draw(screen)
+    pygame.display.update()
