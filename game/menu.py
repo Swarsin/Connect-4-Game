@@ -153,3 +153,69 @@ def login_p2():
         else:
             if wrong_combo not in widget_titles:
                 login_menu_p2.add.label(wrong_combo)
+def register():
+    user = username_input.get_value()
+    pwd = password_input.get_value()
+    id = hash_function(user)
+    result = search_user(id)
+    
+    registered_successfully = "User successfully registered!"
+    already_registered = "User has already been registered, please log-in instead!"
+    weak_password = "Password must have number, capitals, and lowercase letters!"
+    widget_titles = [widget.get_title() for widget in login_menu.get_widgets()]
+
+    if result != []:
+        if already_registered not in widget_titles:#not already_registered:
+            login_menu.add.label(already_registered)
+    elif secure_password(pwd):
+        if registered_successfully not in widget_titles:
+            add_user(user, pwd, id)
+            login_menu.add.label(registered_successfully)
+    else:
+        if weak_password not in widget_titles:
+            login_menu.add.label(weak_password)
+
+def register_p2():
+    user = username_input_p2.get_value()
+    pwd = password_input_p2.get_value()
+    id = hash_function(user)
+    result = search_user(id)
+    
+    registered_successfully = "User successfully registered!"
+    already_registered = "User has already been registered, please log-in instead!"
+    weak_password = "Password must have number, capitals, and lowercase letters!"
+    widget_titles = [widget.get_title() for widget in login_menu_p2.get_widgets()]
+
+    if result != []:
+        if already_registered not in widget_titles:#not already_registered:
+            login_menu_p2.add.label(already_registered)
+    elif secure_password(pwd):
+        if registered_successfully not in widget_titles:
+            add_user(user, pwd, id)
+            login_menu_p2.add.label(registered_successfully)
+    else:
+        if weak_password not in widget_titles:
+            login_menu_p2.add.label(weak_password)
+
+# Function to be called when the user clicks on the "Play" button
+def start_ai_game():
+    global played_ai
+
+    missing_options = "You must choose an option from all dropdown lists!"
+    same_colour = "Both players can't choose the same colour!"
+    widget_titles = [widget.get_title() for widget in customise_menu.get_widgets()]
+
+    try:
+        selected_value1 = drop_down1.get_value()  # get_value() returns the user choice as a tuple (since that's how it's defined in the code) with the index of the selected choice in the corresponding choices array
+        print(selected_value1)
+        selected_value2 = drop_down2.get_value()  # example: (('Hard', 4), 3), (('Green', (0, 255, 0)), 1), (('Blue', (0, 0, 255)), 2), (('Player 1', 1), 0)
+        selected_value3 = drop_down3.get_value()
+        selected_value4 = drop_down4.get_value()
+        if selected_value2 == selected_value3:
+            raise NameError
+        played_ai = False
+        board = Board()
+        human_player = Player(1, True if selected_value4[0][1] == 1 else False, selected_value2[0][1], "You")
+        ai_player = AIPlayer(2, False if selected_value4[0][1] == 1 else True, selected_value3[0][1], selected_value1[0][1])
+        main_menu.disable()
+        main_menu.full_reset() 
