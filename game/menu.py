@@ -99,3 +99,57 @@ def hash_function(input):
     value = 0
     [value := value + ord(i) for i in input] #calculates ascii value of a string input
     return value % 200
+
+
+def login():
+    user = username_input.get_value()
+    pwd = password_input.get_value()
+    id = hash_function(user)
+    result = search_user(id)
+
+    user_not_found = "User not found!"
+    wrong_combo = "Incorrect username or password!"
+    widget_titles = [widget.get_title() for widget in login_menu.get_widgets()]
+
+    if result == []:
+        if user_not_found not in widget_titles:
+            login_menu.add.label(user_not_found)
+    else:
+        #CHECK PASSWORD AND IF CORRECT GO TO NEXT SCREEN
+        if pwd == result[0][2]:
+            #go to next screen
+            #print("Go to next screen")
+            main_menu._open(login_menu_p2)
+            return (user, pwd)
+        else:
+            if wrong_combo not in widget_titles:
+                login_menu.add.label(wrong_combo)
+
+def login_p2():
+    user = username_input_p2.get_value()
+    pwd = password_input_p2.get_value()
+    id = hash_function(user)
+    result = search_user(id)
+    previous_user_details = login()
+
+    double_login = "User already logged in!"
+    user_not_found = "User not found!"
+    wrong_combo = "Incorrect username or password!"
+    widget_titles = [widget.get_title() for widget in login_menu_p2.get_widgets()]
+
+    if previous_user_details[0] == user:
+        if double_login not in widget_titles:
+            login_menu_p2.add.label(double_login)
+    elif result == []:
+        if user_not_found not in widget_titles:
+            login_menu_p2.add.label(user_not_found)
+    else:
+        #CHECK PASSWORD AND IF CORRECT GO TO NEXT SCREEN
+        if pwd == result[0][2]:
+            #go to next screen
+            #print("Go to next screen")
+            main_menu._open(customise_2p)
+            return (user, pwd)
+        else:
+            if wrong_combo not in widget_titles:
+                login_menu_p2.add.label(wrong_combo)
