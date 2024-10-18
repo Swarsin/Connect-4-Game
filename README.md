@@ -11,9 +11,11 @@ Done:
 - made a functional connect 4 ai bot using minimax algorithm with alpha beta pruning to allow for a more advanced bot that can see farther into the future (can branch up to a depth of 10, with some delays between moves at the start of the game)
 - made a functional, but not great ai bot using MCTS
 
-How to play:
-- Download compressed files
-- Extract files
-- open the extracted folder in an IDE
-- ensure the following python libraries are installed: random, sys, copy, math, time, sqlite3, pygame, pygame_menu
-- run full_game.py
+Installation:
+Clone using the web URL (https://github.com/Swarsin/Connect-4-Game.git)
+'''
+git clone https://github.com/Swarsin/Connect-4-Game.git
+'''
+Change directory into Connect-4-Game folder
+(In a virtual environment) install the libraries in requirements.txt
+Run game.py
