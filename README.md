@@ -11,7 +11,7 @@ I have used an array of 7 stacks objects to represent the game board, which isn'
 - made a functional connect 4 ai bot using minimax algorithm with alpha beta pruning to allow for a more advanced bot that can see farther into the future (can branch up to a depth of 10, with some delays between moves at the start of the game)
 - made a functional, but not great ai bot using MCTS
 
-## Installation
+## To run:
 
 Clone using the web URL (https://github.com/Swarsin/Connect-4-Game.git)
 ```javascript
