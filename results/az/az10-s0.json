@@ -1,0 +1,50 @@
+{
+ "checkpoint": "runs/az-local/models/model_iter_0010.pt",
+ "name": "az10-s0",
+ "device": "cuda",
+ "params": {
+  "sims": 0,
+  "c_puct": 2.0,
+  "fpu": 0.0,
+  "dirichlet_alpha": 1.0,
+  "dirichlet_eps": 0.25
+ },
+ "benchmarks": {},
+ "arena": {
+  "minimax:d=4": {
+   "a_wins": 11,
+   "draws": 1,
+   "b_wins": 2,
+   "score": 0.8214285714285714
+  },
+  "minimax:d=8": {
+   "a_wins": 10,
+   "draws": 3,
+   "b_wins": 1,
+   "score": 0.8214285714285714
+  },
+  "mcts:it=2000": {
+   "a_wins": 11,
+   "draws": 1,
+   "b_wins": 2,
+   "score": 0.8214285714285714
+  }
+ },
+ "elo": {
+  "az45:s200": 1278,
+  "solver": 1278,
+  "az45-s800:s800": 1200,
+  "az10-s0:s0": 1175,
+  "az30-s0:s0": 1118,
+  "az45-s0:s0": 1069,
+  "mcts:it=10000": 1017,
+  "minimax:d=8": 990,
+  "minimax:d=6": 975,
+  "mcts:it=2000": 903,
+  "minimax:d=4": 902,
+  "minimax:d=2": 801,
+  "mcts:it=500": 763,
+  "minimax:d=1": 542,
+  "random": 0
+ }
+}

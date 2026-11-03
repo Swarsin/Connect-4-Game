@@ -1,0 +1,22 @@
+{
+ "agent": "minimax:d=8",
+ "benchmark": "pons_test_l3_r1",
+ "limit": null,
+ "results": {
+  "all": {
+   "n": 1000,
+   "optimal": 0.996,
+   "preserving": 0.997
+  },
+  "21-30": {
+   "n": 177,
+   "optimal": 0.9887005649717514,
+   "preserving": 0.9943502824858758
+  },
+  "31-42": {
+   "n": 823,
+   "optimal": 0.9975698663426489,
+   "preserving": 0.9975698663426489
+  }
+ }
+}

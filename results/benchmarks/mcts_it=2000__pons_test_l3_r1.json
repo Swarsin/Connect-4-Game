@@ -1,0 +1,22 @@
+{
+ "agent": "mcts:it=2000",
+ "benchmark": "pons_test_l3_r1",
+ "limit": null,
+ "results": {
+  "all": {
+   "n": 1000,
+   "optimal": 0.958,
+   "preserving": 0.997
+  },
+  "21-30": {
+   "n": 177,
+   "optimal": 0.943502824858757,
+   "preserving": 0.9830508474576272
+  },
+  "31-42": {
+   "n": 823,
+   "optimal": 0.9611178614823815,
+   "preserving": 1.0
+  }
+ }
+}

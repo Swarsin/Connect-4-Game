@@ -1,0 +1,19 @@
+{
+ "agent": "az45:s200",
+ "as_first": {
+  "games": 30,
+  "wins": 30,
+  "draws": 0,
+  "losses": 0,
+  "mean_length": 41.0,
+  "max_length_rate": 1.0
+ },
+ "as_second": {
+  "games": 30,
+  "wins": 0,
+  "draws": 0,
+  "losses": 30,
+  "mean_length": 30.533333333333335,
+  "max_length_rate": 0.0
+ }
+}

@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Connect 4 — UI direction mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Newsreader:opsz,wght@6..72,500;6..72,600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: #e9e6e0;
+    color: #111;
+    font-family: Inter, system-ui, sans-serif;
+    padding: 32px 28px 64px;
+  }
+  .page-head { max-width: 1320px; margin: 0 auto 28px; }
+  .page-head h1 { font-size: 20px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .page-head p { margin: 0; color: #555; font-size: 14px; max-width: 72ch; line-height: 1.5; }
+  .directions { display: grid; grid-template-columns: 1fr; gap: 28px; max-width: 1180px; margin: 0 auto; }
+
+  .mock { border-radius: 18px; overflow: hidden; box-shadow: 0 24px 60px rgba(17, 17, 17, .16); }
+  .mock-label {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+    padding: 12px 16px; font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+    background: rgba(255,255,255,.6); color: #444; backdrop-filter: blur(6px);
+  }
+  .mock-label b { font-size: 13px; letter-spacing: .1em; color: #111; }
+  .mock-label span { text-transform: none; letter-spacing: 0; color: #666; }
+
+  /* ---------------- shared app shell (themed below) ---------------- */
+  .app {
+    background: var(--bg); color: var(--ink);
+    font-family: var(--font-ui);
+    padding: 26px 30px 30px;
+    display: flex; flex-direction: column; gap: 22px;
+    background-image: var(--bg-image, none);
+  }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-size: 20px; font-weight: 600; letter-spacing: var(--brand-tracking, -0.02em); }
+  .brand .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: var(--dot-glow, none); }
+  .pill {
+    font-size: 11px; letter-spacing: .1em; text-transform: uppercase; padding: 6px 10px;
+    border-radius: 999px; border: 1px solid var(--line); color: var(--muted);
+    font-family: var(--font-ui); font-weight: 600; background: var(--pill-bg, transparent);
+  }
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 34px; align-items: start; max-width: 940px; margin: 0 auto; width: 100%; }
+  @media (max-width: 780px) { .layout { grid-template-columns: 1fr; gap: 22px; } }
+
+  /* ---------------- board ---------------- */
+  .board-wrap { position: relative; }
+  .board {
+    display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(6, 1fr);
+    gap: 0; background: var(--board); padding: var(--board-pad, 4%);
+    border-radius: var(--board-radius, 20px); box-shadow: var(--board-shadow, none);
+    border: var(--board-border, none);
+    aspect-ratio: 7 / 6; width: 100%;
+    background-image: var(--board-image, none);
+  }
+  .cell { position: relative; display: grid; place-items: center; }
+  .cell::before {
+    content: ""; width: var(--hole-size, 86%); aspect-ratio: 1;
+    border-radius: var(--hole-radius, 50%); background: var(--hole);
+    border: var(--hole-border, none); box-shadow: var(--hole-shadow, none);
+  }
+  .disc {
+    position: absolute; inset: var(--disc-inset, 7%);
+    border-radius: var(--disc-radius, 50%); background: var(--p1);
+    box-shadow: var(--disc-shadow, none); background-image: var(--disc-image, none);
+  }
+  .disc.p2 { background: var(--p2); }
+  .cell.threat::after {
+    content: ""; position: absolute; inset: 12%;
+    border-radius: 50%; border: 2px solid var(--accent); opacity: .85;
+  }
+  .col-hint { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0; padding: 0 var(--board-pad, 4%); margin-bottom: 8px; }
+  .col-hint span { height: 4px; border-radius: 4px; background: transparent; transition: background .12s ease; }
+  .col-hint span.on { background: var(--accent); }
+
+  /* ---------------- sidebar ---------------- */
+  .side { display: flex; flex-direction: column; gap: 16px; }
+  .card { border: var(--card-border, 1px solid var(--line)); background: var(--panel); border-radius: var(--card-radius, 14px); padding: 14px; box-shadow: var(--card-shadow, none); }
+  .card h3 { margin: 0 0 10px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; font-family: var(--font-ui); }
+  .eval { display: flex; align-items: center; gap: 10px; }
+  .eval-bar { flex: 1; height: 8px; border-radius: 999px; background: var(--track); overflow: hidden; }
+  .eval-fill { width: 62%; height: 100%; background: var(--p1); border-radius: 999px; box-shadow: var(--eval-glow, none); }
+  .eval-num { font-family: var(--font-mono); font-size: 13px; font-weight: 600; }
+  .moves { display: flex; flex-direction: column; gap: 9px; }
+  .move-row { display: grid; grid-template-columns: 18px 1fr 42px; gap: 8px; align-items: center; font-size: 12px; }
+  .move-row .k { font-family: var(--font-mono); color: var(--muted); }
+  .move-bar { height: 6px; border-radius: 999px; background: var(--accent); opacity: .85; }
+  .move-row .v { text-align: right; font-family: var(--font-mono); color: var(--muted); }
+  .history { display: flex; flex-wrap: wrap; gap: 6px; }
+  .history span { font-family: var(--font-mono); font-size: 11px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; }
+  .actions { display: flex; gap: 8px; }
+  .btn { flex: 1; font: inherit; font-size: 12.5px; font-weight: 600; padding: 10px 12px; border-radius: var(--btn-radius, 10px); border: 1px solid var(--line); background: var(--btn-bg, transparent); color: var(--ink); cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); box-shadow: var(--btn-shadow, none); }
+  .status { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 12.5px; color: var(--muted); }
+  .thinking { display: inline-flex; align-items: center; gap: 8px; }
+  .thinking i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse 1.1s infinite ease-in-out; }
+  .thinking i:nth-child(2) { animation-delay: .15s; }
+  .thinking i:nth-child(3) { animation-delay: .3s; }
+  @keyframes pulse { 0%, 80%, 100% { opacity: .25; transform: scale(.85); } 40% { opacity: 1; transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .thinking i { animation: none; opacity: .7; } }
+
+  /* ================================================================ A */
+  [data-dir="a"] .app {
+    --bg: #faf7f2; --panel: #fffdf9; --ink: #1c1917; --muted: #78716c; --line: #e7e1d8;
+    --accent: #e4572e; --accent-ink: #fff8f4; --accent-soft: #f0b7a4;
+    --p1: #0f766e; --p2: #f59e0b; --board: #1f2937; --hole: #0b1220; --track: #ece6dc;
+    --font-ui: Inter, system-ui, sans-serif; --font-display: Fraunces, Georgia, serif; --font-mono: "JetBrains Mono", monospace;
+    --board-radius: 22px; --board-pad: 4%;
+    --board-shadow: 0 18px 40px rgba(28,25,23,.20), 0 2px 0 rgba(255,255,255,.06) inset;
+    --hole-shadow: inset 0 3px 6px rgba(0,0,0,.55);
+    --disc-shadow: inset 0 -4px 8px rgba(0,0,0,.28), 0 2px 3px rgba(0,0,0,.35);
+    --disc-image: radial-gradient(circle at 34% 28%, rgba(255,255,255,.55), rgba(255,255,255,0) 46%);
+    --card-shadow: 0 10px 24px rgba(28,25,23,.07);
+    --btn-radius: 11px;
+  }
+  [data-dir="a"] .brand .dot { box-shadow: 0 4px 10px rgba(228,87,46,.45); }
+  [data-dir="a"] .btn.primary { box-shadow: 0 6px 14px rgba(228,87,46,.28); }
+  [data-dir="a"] .cell.threat::after { inset: 8%; border-width: 3px; opacity: .9; }
+
+  /* ================================================================ B */
+  [data-dir="b"] .app {
+    --bg: #f4f1ea; --panel: #f4f1ea; --ink: #171717; --muted: #6b6459; --line: #d9d4c7;
+    --accent: #7f1d1d; --accent-ink: #fbf8f1; --accent-soft: #c9b7b0;
+    --p1: #171717; --p2: #7f1d1d; --board: transparent; --hole: #f4f1ea; --track: #ddd7c9;
+    --font-ui: Inter, system-ui, sans-serif; --font-display: Newsreader, Georgia, serif; --font-mono: "JetBrains Mono", monospace;
+    --board-radius: 0; --board-pad: 0; --hole-size: 100%; --hole-radius: 0; --hole: transparent;
+    --disc-inset: 22%; --disc-radius: 0;
+    --board-border: 2px solid #171717;
+    --hole-border: 1px solid #cfc8b8;
+    --card-border: 0; --card-radius: 0;
+    --brand-tracking: -0.01em;
+  }
+  [data-dir="b"] .brand { font-size: 24px; font-weight: 500; }
+  [data-dir="b"] .brand .dot { border-radius: 0; width: 9px; height: 9px; }
+  [data-dir="b"] .pill { border-radius: 0; border-width: 1px; }
+  [data-dir="b"] .board { background: transparent; }
+  [data-dir="b"] .card { padding: 14px 0 0; }
+  [data-dir="b"] .card + .card { border-top: 1px solid var(--line); }
+  [data-dir="b"] .btn { border-radius: 0; }
+  [data-dir="b"] .btn.primary { background: transparent; color: var(--ink); border: 1px solid var(--ink); }
+  [data-dir="b"] .history span { border-radius: 0; }
+  [data-dir="b"] .col-hint { padding: 0; }
+  [data-dir="b"] .cell.threat::after { inset: 22%; border-radius: 0; border-width: 1px; }
+
+  /* ================================================================ C */
+  [data-dir="c"] .app {
+    --bg: #0b1020; --panel: #111827; --ink: #e5e7eb; --muted: #94a3b8; --line: #1f2937;
+    --accent: #22d3ee; --accent-ink: #04121a; --accent-soft: #164e63;
+    --p1: #22d3ee; --p2: #f472b6; --board: #0f172a; --hole: #060b16; --track: #1e293b;
+    --font-ui: "Space Grotesk", system-ui, sans-serif; --font-display: "Space Grotesk", sans-serif; --font-mono: "JetBrains Mono", monospace;
+    --board-radius: 16px; --board-pad: 4%;
+    --board-border: 1px solid #1e293b;
+    --board-shadow: 0 0 0 1px rgba(34,211,238,.08) inset, 0 24px 60px rgba(2,6,23,.7);
+    --hole-shadow: inset 0 0 0 1px rgba(34,211,238,.14), inset 0 4px 10px rgba(0,0,0,.7);
+    --disc-shadow: 0 0 14px rgba(34,211,238,.45), inset 0 -3px 6px rgba(0,0,0,.35);
+    --disc-image: radial-gradient(circle at 35% 30%, rgba(255,255,255,.65), rgba(255,255,255,0) 52%);
+    --card-shadow: 0 0 0 1px rgba(34,211,238,.06) inset;
+    --eval-glow: 0 0 12px rgba(34,211,238,.55);
+    --bg-image: repeating-linear-gradient(0deg, rgba(148,163,184,.035) 0 1px, transparent 1px 3px);
+    --btn-radius: 8px;
+  }
+  [data-dir="c"] .disc.p2 { box-shadow: 0 0 14px rgba(244,114,182,.45), inset 0 -3px 6px rgba(0,0,0,.35); }
+  [data-dir="c"] .brand { text-transform: uppercase; letter-spacing: .08em; font-size: 17px; }
+  [data-dir="c"] .pill { border-color: #22d3ee33; color: #a5f3fc; background: rgba(34,211,238,.06); }
+  [data-dir="c"] .btn.primary { box-shadow: 0 0 16px rgba(34,211,238,.35); }
+  [data-dir="c"] .move-bar { box-shadow: 0 0 8px rgba(34,211,238,.4); }
+</style>
+</head>
+<body>
+<header class="page-head">
+  <h1>Connect 4 — pick a direction</h1>
+  <p>Same screen, same position, three token sets. Judge the board first, then the sidebar and the
+    type. Each panel is the exact shell the real app will use, so the choice becomes
+    <code>ui-design/references/tokens.md</code>.</p>
+</header>
+
+<main class="directions">
+
+  <!-- ============================================================ A -->
+  <section class="mock" data-dir="a">
+    <div class="mock-label"><b>A — Modern toy</b><span>warm · tactile · product</span></div>
+    <div class="app">
+      <div class="topbar">
+        <div class="brand"><span class="dot"></span>Connect Four</div>
+        <div class="pill">Hard · 1313</div>
+      </div>
+      <div class="layout">
+        <div class="board-wrap" aria-label="Connect 4 board, player to move">
+          <div class="col-hint"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="board" id="board-a"></div>
+        </div>
+        <aside class="side">
+          <div class="card">
+            <h3>Win probability</h3>
+            <div class="eval"><span class="eval-num">62%</span><div class="eval-bar"><div class="eval-fill"></div></div></div>
+          </div>
+          <div class="card">
+            <h3>Top moves</h3>
+            <div class="moves">
+              <div class="move-row"><span class="k">2</span><span class="move-bar" style="width:92%"></span><span class="v">42%</span></div>
+              <div class="move-row"><span class="k">4</span><span class="move-bar" style="width:61%"></span><span class="v">27%</span></div>
+              <div class="move-row"><span class="k">6</span><span class="move-bar" style="width:34%"></span><span class="v">15%</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Moves</h3>
+            <div class="history"><span>1</span><span>2</span><span>5</span><span>5</span><span>3</span><span>3</span><span>7</span><span>2</span><span>7</span><span>1</span><span>3</span><span>2</span><span>1</span><span>7</span><span>6</span></div>
+          </div>
+          <div class="actions"><button class="btn primary">New game</button><button class="btn">Undo</button></div>
+          <div class="status"><span class="thinking"><i></i><i></i><i></i> AI thinking</span><span>you are teal</span></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ B -->
+  <section class="mock" data-dir="b">
+    <div class="mock-label"><b>B — Editorial</b><span>calm · precise · studio</span></div>
+    <div class="app">
+      <div class="topbar">
+        <div class="brand"><span class="dot"></span>Connect Four</div>
+        <div class="pill">Hard · 1313</div>
+      </div>
+      <div class="layout">
+        <div class="board-wrap" aria-label="Connect 4 board, player to move">
+          <div class="col-hint"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="board" id="board-b"></div>
+        </div>
+        <aside class="side">
+          <div class="card">
+            <h3>Win probability</h3>
+            <div class="eval"><span class="eval-num">62%</span><div class="eval-bar"><div class="eval-fill"></div></div></div>
+          </div>
+          <div class="card">
+            <h3>Top moves</h3>
+            <div class="moves">
+              <div class="move-row"><span class="k">2</span><span class="move-bar" style="width:92%"></span><span class="v">42%</span></div>
+              <div class="move-row"><span class="k">4</span><span class="move-bar" style="width:61%"></span><span class="v">27%</span></div>
+              <div class="move-row"><span class="k">6</span><span class="move-bar" style="width:34%"></span><span class="v">15%</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Moves</h3>
+            <div class="history"><span>1</span><span>2</span><span>5</span><span>5</span><span>3</span><span>3</span><span>7</span><span>2</span><span>7</span><span>1</span><span>3</span><span>2</span><span>1</span><span>7</span><span>6</span></div>
+          </div>
+          <div class="actions"><button class="btn primary">New game</button><button class="btn">Undo</button></div>
+          <div class="status"><span class="thinking"><i></i><i></i><i></i> AI thinking</span><span>you are black</span></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ C -->
+  <section class="mock" data-dir="c">
+    <div class="mock-label"><b>C — Arcade</b><span>dark · neon · energetic</span></div>
+    <div class="app">
+      <div class="topbar">
+        <div class="brand"><span class="dot"></span>Connect Four</div>
+        <div class="pill">Hard · 1313</div>
+      </div>
+      <div class="layout">
+        <div class="board-wrap" aria-label="Connect 4 board, player to move">
+          <div class="col-hint"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="board" id="board-c"></div>
+        </div>
+        <aside class="side">
+          <div class="card">
+            <h3>Win probability</h3>
+            <div class="eval"><span class="eval-num">62%</span><div class="eval-bar"><div class="eval-fill"></div></div></div>
+          </div>
+          <div class="card">
+            <h3>Top moves</h3>
+            <div class="moves">
+              <div class="move-row"><span class="k">2</span><span class="move-bar" style="width:92%"></span><span class="v">42%</span></div>
+              <div class="move-row"><span class="k">4</span><span class="move-bar" style="width:61%"></span><span class="v">27%</span></div>
+              <div class="move-row"><span class="k">6</span><span class="move-bar" style="width:34%"></span><span class="v">15%</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <h3>Moves</h3>
+            <div class="history"><span>1</span><span>2</span><span>5</span><span>5</span><span>3</span><span>3</span><span>7</span><span>2</span><span>7</span><span>1</span><span>3</span><span>2</span><span>1</span><span>7</span><span>6</span></div>
+          </div>
+          <div class="actions"><button class="btn primary">New game</button><button class="btn">Undo</button></div>
+          <div class="status"><span class="thinking"><i></i><i></i><i></i> AI thinking</span><span>you are cyan</span></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Position "125533727132176" (bottom-to-top grid from c4.engine Board.grid()).
+  // 1 = player 1 (teal / black / cyan), 2 = player 2 (amber / oxblood / pink).
+  // Player 1 has an immediate win in column 2 (index 1); ring the empty cell it lands on.
+  const GRID = [
+    [1, 2, 1, 0, 1, 1, 1],
+    [2, 2, 2, 0, 2, 0, 1],
+    [1, 2, 1, 0, 0, 0, 2],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0]
+  ];
+  for (const id of ["board-a", "board-b", "board-c"]) {
+    const el = document.getElementById(id);
+    for (let r = 5; r >= 0; r--) {
+      for (let c = 0; c < 7; c++) {
+        const cell = document.createElement("div");
+        cell.className = "cell" + (r === 3 && c === 1 ? " threat" : "");
+        const v = GRID[r][c];
+        if (v) {
+          const d = document.createElement("span");
+          d.className = "disc" + (v === 2 ? " p2" : "");
+          cell.appendChild(d);
+        }
+        el.appendChild(cell);
+      }
+    }
+  }
+
+  // Column hover: highlight the matching hint bar (the real app shows a ghost disc).
+  document.querySelectorAll(".board-wrap").forEach((wrap) => {
+    const hints = [...wrap.querySelectorAll(".col-hint span")];
+    const board = wrap.querySelector(".board");
+    board.addEventListener("mousemove", (e) => {
+      const r = board.getBoundingClientRect();
+      const pad = r.width * 0.04;
+      const col = Math.max(0, Math.min(6, Math.floor((e.clientX - r.left - pad) / ((r.width - pad * 2) / 7))));
+      hints.forEach((h, i) => h.classList.toggle("on", i === col));
+    });
+    board.addEventListener("mouseleave", () => hints.forEach((h) => h.classList.remove("on")));
+  });
+</script>
+</body>
+</html>

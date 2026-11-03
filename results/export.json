@@ -1,0 +1,66 @@
+{
+ "source_checkpoints": {
+  "beginner": "runs/az-local/models/model_iter_0000.pt",
+  "easy": "runs/az-local/models/model_iter_0010.pt",
+  "master": "runs/az-local/models/model_iter_0045.pt"
+ },
+ "shipped_format": "int8 (static QDQ)",
+ "shipped_size_mb": {
+  "beginner": 3.052,
+  "easy": 3.052,
+  "master": 3.052
+ },
+ "shipped_total_mb": 9.156,
+ "why_int8": "result-preserving accuracy on c4_mixed_test changed by <= 0.2 pp at sims 0 and 0.0 pp at sims 200 versus fp32, while files are 3.9x smaller and ~1.3x faster at batch 1 on CPU",
+ "master_variants": {
+  "fp32": {
+   "file": "/tmp/export/master.onnx",
+   "size_mb": 11.842361,
+   "latency_b1_ms": 2.875936150085181,
+   "latency_b8_ms": 18.774573634727858,
+   "s0_optimal": 0.846,
+   "s0_preserving": 0.976,
+   "s200_optimal": 0.868,
+   "s200_preserving": 0.99
+  },
+  "int8": {
+   "file": "/tmp/export/master.int8.onnx",
+   "size_mb": 3.052225,
+   "latency_b1_ms": 2.1508990199072286,
+   "latency_b8_ms": 16.452430229983293,
+   "s0_optimal": 0.85,
+   "s0_preserving": 0.974,
+   "s200_optimal": 0.87,
+   "s200_preserving": 0.99
+  },
+  "fp16": {
+   "file": "/tmp/export/master.fp16.onnx",
+   "size_mb": 5.930455,
+   "latency_b1_ms": 2.903740499750711,
+   "latency_b8_ms": 18.968179065268487,
+   "s0_optimal": 0.846,
+   "s0_preserving": 0.976,
+   "s200_optimal": 0.87,
+   "s200_preserving": 0.99
+  }
+ },
+ "quantisation_regression_vs_fp32": {
+  "master": {
+   "value_mae": 0.03428,
+   "policy_tv_mean": 0.01244,
+   "argmax_agreement": 0.98
+  },
+  "easy": {
+   "value_mae": 0.02708,
+   "policy_tv_mean": 0.01,
+   "argmax_agreement": 0.978
+  },
+  "beginner": {
+   "value_mae": 0.01856,
+   "policy_tv_mean": 0.00904,
+   "argmax_agreement": 0.925,
+   "note": "untrained checkpoint: policy is near-uniform, argmax is unstable"
+  }
+ },
+ "latency_note": "ONNX Runtime CPU, 1 thread, batch 1 / 8, measured by c4.export.quantize (browser wasm is slower; measure on device before setting the Hard SLA)"
+}
