@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+build/
+dist/
+
+# Node / web
+node_modules/
+web/dist/
+web/test-results/
+web/playwright-report/
+
+# Data, runs, artefacts
+*.db
+*.sqlite
+third_party/
+runs/
+wandb/
+*.pt
+!models/*.pt
+data/solver_cache*
+*.npz
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.env
+.env.local

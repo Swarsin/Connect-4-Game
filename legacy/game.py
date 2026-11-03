@@ -1,4 +1,17 @@
 import random, sys, copy, math, time, sqlite3, pygame, pygame_menu
+from pathlib import Path
+
+DB_PATH = Path(__file__).resolve().parent / "c4db.db" #database lives next to this file and is created on first run
+
+def init_db(): #create the users table if it doesn't exist yet
+    conn = sqlite3.connect(DB_PATH)
+    try:
+        with conn:
+            conn.execute('CREATE TABLE IF NOT EXISTS "users" ("id" INTEGER, "username" TEXT, "password" TEXT, "wins" INTEGER, PRIMARY KEY("id"))')
+    finally:
+        conn.close()
+
+init_db()
 
 pygame.init() #initialise pygame
 
@@ -53,7 +66,7 @@ def merge_sort(array, wins=lambda x: x[1]): #used to sort the leaderboard
 
 def GetList(): #used to get the fields of information that will be be displayed in the leaderboard
     try:
-        connect = sqlite3.connect("c4db.db")
+        connect = sqlite3.connect(DB_PATH)
         cursor = connect.cursor()
 
         cursor.execute("""
@@ -740,7 +753,7 @@ def secure_password(password):
     
 def add_user(username, password, user_id):
     try:
-        conn = sqlite3.connect("c4db.db") #Connect to the database
+        conn = sqlite3.connect(DB_PATH) #Connect to the database
         cursor = conn.cursor() #Create a cursor object
         # Check if user_id already exists
         cursor.execute("SELECT * FROM users WHERE id=?", (user_id,))
@@ -761,7 +774,7 @@ def add_user(username, password, user_id):
 
 def search_user(user_id, username):
     try:
-        conn = sqlite3.connect("c4db.db") #Connect to the database
+        conn = sqlite3.connect(DB_PATH) #Connect to the database
         cursor = conn.cursor() #Create a cursor object
         # Check if user_id already exists
         cursor.execute("SELECT * FROM users WHERE id=?", (user_id,))
@@ -780,7 +793,7 @@ def search_user(user_id, username):
 
 def update_score(username): #update the score of a user in the database using their username
     try:
-        conn = sqlite3.connect("c4db.db")
+        conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
         with conn:
             cursor.execute("UPDATE users SET wins = wins + 1 WHERE username = ?", (username,))
