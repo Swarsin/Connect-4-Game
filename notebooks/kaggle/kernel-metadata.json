@@ -1,0 +1,13 @@
+{
+  "id": "YOUR_KAGGLE_USERNAME/c4-alphazero-train",
+  "title": "c4-alphazero-train",
+  "code_file": "train.ipynb",
+  "language": "python",
+  "kernel_type": "notebook",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": [],
+  "competition_sources": [],
+  "kernel_sources": []
+}

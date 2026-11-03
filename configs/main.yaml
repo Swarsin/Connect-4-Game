@@ -1,0 +1,44 @@
+# Main AlphaZero run (Kaggle: P100/T4 + 4 vCPUs). Resume across sessions with --resume auto.
+run_name: az-main
+seed: 0
+net: {channels: 128, blocks: 10, value_hidden: 64}
+mcts:
+  sims: 200
+  c_puct: 2.0
+  dirichlet_alpha: 1.0
+  dirichlet_eps: 0.25
+  temp_moves: 12
+  temp: 1.0
+  fpu: 0.0
+  tree_reuse: true
+selfplay:
+  workers: 4
+  parallel_games_per_worker: 128
+  games_per_iter: 2048
+  eval_cache: true
+train:
+  batch_size: 1024
+  optimizer: sgd
+  lr: 0.02
+  momentum: 0.9
+  weight_decay: 1.0e-4
+  lr_schedule: {type: step, milestones_iters: [60, 120], gamma: 0.1}
+  sample_reuse: 6
+  buffer_positions: 1000000
+  min_buffer: 50000
+  augment_mirror: true
+  value_target: z
+  amp: true
+  grad_clip: 5.0
+  max_iters: 200
+eval:
+  every_iters: 5
+  arena: ["minimax:d=4", "mcts:it=2000"]
+  arena_openings: one
+  arena_sims: 50
+  benchmark: data/benchmarks/c4_mixed_dev.jsonl
+  benchmark_sims: [0, 200]
+  benchmark_limit: 1000
+checkpoint: {every_iters: 1, keep_last: 3, keep_every: 10}
+runtime: {device: auto, max_wall_hours: 11.0, out_dir: runs}
+tracking: {wandb: true, project: c4-alphazero, upload_checkpoints: true, tags: [main]}

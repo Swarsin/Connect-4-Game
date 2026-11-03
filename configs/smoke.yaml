@@ -1,0 +1,23 @@
+# Tiny CPU-friendly config for sanity checks (~minutes per iteration on a laptop CPU).
+extends: main.yaml
+run_name: az-smoke
+net: {channels: 32, blocks: 2, value_hidden: 32}
+mcts: {sims: 25, temp_moves: 8}
+selfplay: {workers: 1, parallel_games_per_worker: 128, games_per_iter: 256}
+train:
+  batch_size: 256
+  lr: 0.02
+  lr_schedule: {type: constant}
+  sample_reuse: 4
+  buffer_positions: 100000
+  min_buffer: 2000
+  max_iters: 1000
+eval:
+  every_iters: 5
+  arena: ["random", "minimax:d=2"]
+  arena_openings: one
+  arena_sims: 25
+  benchmark_sims: [0]
+  benchmark_limit: 500
+runtime: {device: cpu, max_wall_hours: 0.75}
+tracking: {wandb: false, tags: [smoke]}

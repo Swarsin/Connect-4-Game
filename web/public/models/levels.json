@@ -1,0 +1,51 @@
+{
+ "version": 1,
+ "note": "Elo measured at temperature 0 against a fixed panel (minimax d4, minimax d8, MCTS 2000; 14 games per opponent) and fitted with the existing baseline pool, anchored at random = 0. Levels with temperature > 0 play weaker than their greedy rating. Models are static int8 ONNX, input [N,2,6,7] float32 (row 0 = bottom).",
+ "levels": [
+  {
+   "id": "beginner",
+   "label": "Beginner",
+   "model": "models/beginner.onnx",
+   "sims": 0,
+   "temperature": 1.0,
+   "elo": 377,
+   "checkpoint": "model_iter_0000"
+  },
+  {
+   "id": "easy",
+   "label": "Easy",
+   "model": "models/easy.onnx",
+   "sims": 0,
+   "temperature": 0.5,
+   "elo": 1210,
+   "checkpoint": "model_iter_0010"
+  },
+  {
+   "id": "medium",
+   "label": "Medium",
+   "model": "models/master.onnx",
+   "sims": 0,
+   "temperature": 0.0,
+   "elo": 1210,
+   "checkpoint": "model_iter_0045"
+  },
+  {
+   "id": "hard",
+   "label": "Hard",
+   "model": "models/master.onnx",
+   "sims": 200,
+   "temperature": 0.0,
+   "elo": 1313,
+   "checkpoint": "model_iter_0045"
+  },
+  {
+   "id": "master",
+   "label": "Master",
+   "model": "models/master.onnx",
+   "sims": 800,
+   "temperature": 0.0,
+   "elo": 1400,
+   "checkpoint": "model_iter_0045"
+  }
+ ]
+}
