@@ -310,7 +310,7 @@ export default function App() {
             </table>
             <p className="muted">
               Elo is a Bradley–Terry fit over the project&rsquo;s match pool, anchored at random =
-              0. AlphaZero picks a game-theoretically optimal move in 87.9% of held-out positions
+              0. AlphaZero picks a game-theoretically optimal move in 87.7% of held-out positions
               at 800 simulations and wins 30/30 games as first player against a perfect solver.
             </p>
             <h2>How it works</h2>
@@ -320,7 +320,10 @@ export default function App() {
               against itself; the browser version runs an int8 export with ONNX Runtime Web.
             </p>
             <p>
-              <a href="https://github.com/Swarsin/Connect-4-Game">Source and write-up on GitHub</a>
+              <a href="https://github.com/Swarsin/Connect-4-Game">Source on GitHub</a> ·{' '}
+              <a href="https://github.com/Swarsin/Connect-4-Game/blob/main/docs/report.md">
+                Full technical report
+              </a>
             </p>
             <p>
               <a href="#/play">Back to the board</a>

@@ -1,5 +1,7 @@
 # Evaluation protocol
 
+For the results and their interpretation, see [`report.md`](report.md).
+
 The goal of this project is not only to play Connect 4 well, but to *measure* how well. This
 document defines every number reported in `results/`.
 

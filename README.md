@@ -8,8 +8,8 @@
 ![Connect 4 against AlphaZero](docs/figures/app-az.png)
 
 A Connect 4 engine with classical search baselines (Minimax, UCT MCTS), an AlphaZero
-implementation trained by self-play, rigorous evaluation against perfect play, and a browser
-version (in progress).
+implementation trained by self-play, rigorous evaluation against perfect play, and a browser app
+deployed at <https://swarsin.github.io/Connect-4-Game/>.
 
 > **Status:** engine, classical agents, solver-backed evaluation harness, AlphaZero training
 > pipeline and Kaggle plumbing are implemented and tested. A 3-hour local AlphaZero run is
@@ -26,9 +26,9 @@ version (in progress).
 |---|---|---|---|---|
 | Beginner | iter 0 | policy | 377 | — |
 | Easy | iter 10 | policy | 1210 (1096–1355) | — |
-| Medium | iter 45 | policy | 1210 (1086–1386) | 85.6% / 96.5% |
-| Hard | iter 45 | 200 sims | 1313 (1182–1448) | 87.7% / 98.5% |
-| Master | iter 45 | 800 sims | **1400 (1276–1571)** | **87.9% / 98.9%** |
+| Medium | iter 45 | policy | 1210 (1086–1386) | 84.1% / 96.8% |
+| Hard | iter 45 | 200 sims | 1313 (1182–1448) | 87.3% / 98.8% |
+| Master | iter 45 | 800 sims | **1400 (1276–1571)** | **87.7% / 99.1%** |
 
 Against the **perfect solver** at 200 simulations: **30 wins / 30 games as first player**, every
 game lasting the maximum 41 plies; 0 wins / 30 as second player (mean 30.5 plies). The full
@@ -37,6 +37,9 @@ baseline pool is rated below it (MCTS 10k iterations 1052, Minimax depth 8 1024)
 Shipped models are static int8 ONNX: 3.05 MB each (9.2 MB total), within 0.2 pp of fp32 accuracy,
 ~1.3x faster at batch 1 on CPU. Difficulty metadata: `web/public/models/levels.json`; export
 report: `results/export.json`.
+
+**Full write-up:** [docs/report.md](docs/report.md) — method, evaluation protocol, stage-by-stage
+results, engineering and limitations.
 
 
 ## Why this is more than "an AI for Connect 4"
@@ -64,7 +67,8 @@ configs/            main / smoke / local training configs
 data/benchmarks/    solver-labelled position sets (committed)
 legacy/             the original pygame desktop game (frozen)
 web/                Vite + React + TypeScript site (classic bots + AlphaZero levels)
-notes: docs/conventions.md, docs/architecture.md, docs/evaluation.md
+docs/report.md     technical report (method, evaluation, results, limitations)
+docs/architecture.md, docs/evaluation.md, docs/conventions.md
 ```
 
 ## Quick start
@@ -93,7 +97,7 @@ secret); it resumes from the latest W&B checkpoint artifact between sessions.
 
 ## Results so far
 
-Baseline Elo (3,528 games, anchor `random = 0`):
+Elo in the solver-grounded match pool (anchor `random = 0`):
 
 | agent | Elo |
 |---|---|
@@ -108,7 +112,9 @@ Baseline Elo (3,528 games, anchor `random = 0`):
 | random | 0 |
 
 Perfect-play accuracy on `c4_mixed_test` (3,761 positions): AlphaZero at 800 simulations picks an
-optimal move in **87.9%** of positions and preserves the result in **98.9%**; Minimax depth 8
+optimal move in **87.7%** of positions and preserves the result in **99.1%**; Minimax depth 8
 86.5% / 94.9%; MCTS 2,000 iterations 83.6% / 94.7%. Full tables: `results/README.md`.
+
+![Self-play learning curves](docs/figures/report-training.png)
 
 The legacy pygame game is untouched and still runs from `legacy/`.
