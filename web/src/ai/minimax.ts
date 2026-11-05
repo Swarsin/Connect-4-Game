@@ -131,7 +131,8 @@ export class MinimaxAgent implements Agent {
       if (alpha >= beta) break;
     }
 
-    if (this.useTt) {
+    // mate scores embed remaining depth; never cache or reuse them (stale distances)
+    if (this.useTt && -WIN < best && best < WIN) {
       const flag = best <= alpha0 ? UPPER : best >= beta ? LOWER : EXACT;
       this.tt.set(key, { d: depth, v: best, flag, move: bestMove });
     }
