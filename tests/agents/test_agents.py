@@ -6,6 +6,7 @@ import pytest
 
 from c4.agents import make_agent, parse_spec
 from c4.agents.heuristic import evaluate
+from c4.agents.mcts_uct import MCTSAgent
 from c4.agents.minimax import MinimaxAgent
 from c4.agents.random_agent import RandomAgent
 from c4.engine import Board
@@ -91,3 +92,19 @@ def test_mcts_tree_reuse_consistent() -> None:
     for _ in range(6):
         b.play(agent.select_move(b))
     assert not b.is_terminal() or b.winner() is not None
+
+
+def test_minimax_tt_does_not_return_stale_mate_scores() -> None:
+    line = ["37611143156552217767", "376111431565522177674", "3761114315655221776745"]
+    tt = MinimaxAgent(depth=4, use_tt=True, seed=0)
+    nt = MinimaxAgent(depth=4, use_tt=False, seed=0)
+    for moves in reversed(line):  # deepest first: one shared TT agent accumulates stale mate scores
+        b = Board.from_moves(moves)
+        assert tt.move_scores(b) == nt.move_scores(b)
+
+
+def test_mcts_select_move_terminal_raises() -> None:
+    b = Board.from_moves("1212121")  # P1 vertical four
+    assert b.winner() == 1
+    with pytest.raises(ValueError, match="terminal"):
+        MCTSAgent(iterations=10, seed=0).select_move(b)

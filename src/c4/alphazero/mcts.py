@@ -20,8 +20,7 @@ from typing import Protocol
 
 import numpy as np
 
-from c4.engine import WIDTH, Board
-from c4.engine.board import TOP
+from c4.engine import N_CELLS, TOP, WIDTH, Board
 
 
 class Evaluator(Protocol):
@@ -150,7 +149,7 @@ def run_search(
                     node.children[a] = child
                     if b.last_move_won():
                         child.terminal, child.tv = True, -1.0
-                    elif b.n_moves == 42:
+                    elif b.n_moves == N_CELLS:
                         child.terminal, child.tv = True, 0.0
                     else:
                         child.legal = _legal(b)
@@ -183,8 +182,10 @@ def choose_move(root: Node, temperature: float, rng: np.random.Generator) -> int
     counts = np.asarray(root.N, dtype=np.float64)
     if counts.sum() == 0:  # no search: fall back to priors
         counts = np.asarray(root.P, dtype=np.float64)
+    if counts.sum() == 0:  # terminal root or no information at all
+        raise ValueError("cannot choose a move: no search information for this position")
     if temperature <= 1e-6:
-        best = np.flatnonzero(counts == counts.max())
+        best = np.flatnonzero(counts == np.max(counts))
         return int(rng.choice(best))
     p = counts ** (1.0 / temperature)
     p /= p.sum()
@@ -196,6 +197,8 @@ def choose_from_priors(priors: np.ndarray, temperature: float, rng: np.random.Ge
         best = np.flatnonzero(priors == priors.max())
         return int(rng.choice(best))
     p = np.asarray(priors, dtype=np.float64) ** (1.0 / temperature)
+    if p.sum() == 0:
+        raise ValueError("cannot choose a move: no search information for this position")
     p /= p.sum()
     return int(rng.choice(WIDTH, p=p))
 

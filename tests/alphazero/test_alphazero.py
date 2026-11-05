@@ -10,6 +10,7 @@ from c4.alphazero.mcts import (  # noqa: E402
     NetEvaluator,
     SearchParams,
     UniformEvaluator,
+    choose_from_priors,
     choose_move,
     new_root,
     run_search,
@@ -184,3 +185,15 @@ def test_config_extends_and_overrides() -> None:
     assert cfg.mcts.sims == 7 and cfg.train.lr == 0.5
     assert cfg.mcts.c_puct == 2.0  # inherited from main.yaml
     assert lr_at(load_config("configs/main.yaml").train, 130) == pytest.approx(0.02 * 0.01)
+
+
+def test_choose_move_terminal_root_raises() -> None:
+    root = new_root(Board.from_moves("1212121"))
+    assert root.terminal and not root.legal
+    with pytest.raises(ValueError, match="no search information"):
+        choose_move(root, 1.0, np.random.default_rng(0))
+
+
+def test_choose_from_priors_all_zero_raises() -> None:
+    with pytest.raises(ValueError, match="no search information"):
+        choose_from_priors(np.zeros(7), 1.0, np.random.default_rng(0))

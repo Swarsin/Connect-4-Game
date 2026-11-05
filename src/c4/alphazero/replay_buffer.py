@@ -70,22 +70,22 @@ class ReplayBuffer:
     def save(self, path: str | Path) -> None:
         path = Path(path)
         tmp = path.with_name(path.name + ".tmp.npz")
-        np.savez_compressed(tmp, **self.state())
+        np.savez_compressed(tmp, **self.state())  # type: ignore[arg-type]  # numpy stubs mistype **kwargs values
         tmp.replace(path)
 
     @classmethod
     def load(cls, path: str | Path, capacity: int | None = None) -> ReplayBuffer:
-        d = np.load(path)
-        cap, ptr, size, total = (int(v) for v in d["meta"])
-        buf = cls(capacity or cap)
-        if buf.capacity == cap:
-            buf.planes[:size] = d["planes"][:size]
-            buf.pi[:size] = d["pi"][:size]
-            buf.z[:size] = d["z"][:size]
-            buf.q[:size] = d["q"][:size]
-            buf.ptr, buf.size = ptr, size
-        else:  # capacity changed: re-add in chronological order
-            order = np.r_[ptr:size, 0:ptr] if size == cap else np.arange(size)
-            buf.add(d["planes"][order], d["pi"][order], d["z"][order], d["q"][order])
-        buf.total_added = total
+        with np.load(path) as d:
+            cap, ptr, size, total = (int(v) for v in d["meta"])
+            buf = cls(capacity or cap)
+            if buf.capacity == cap:
+                buf.planes[:size] = d["planes"][:size]
+                buf.pi[:size] = d["pi"][:size]
+                buf.z[:size] = d["z"][:size]
+                buf.q[:size] = d["q"][:size]
+                buf.ptr, buf.size = ptr, size
+            else:  # capacity changed: re-add in chronological order
+                order = np.r_[ptr:size, 0:ptr] if size == cap else np.arange(size)
+                buf.add(d["planes"][order], d["pi"][order], d["z"][order], d["q"][order])
+            buf.total_added = total
         return buf
