@@ -7,7 +7,7 @@ from typing import Any
 
 from c4.agents.base import BaseAgent
 from c4.agents.heuristic import DEFAULT_WEIGHTS, HeuristicWeights, evaluate
-from c4.engine import CENTRE_ORDER, N_CELLS, Board
+from c4.engine import CENTRE_ORDER, N_CELLS, TOP, Board
 
 WIN = 1_000_000
 EXACT, LOWER, UPPER = 0, 1, 2
@@ -60,7 +60,7 @@ class MinimaxAgent(BaseAgent):
                 if alpha >= beta:
                     return val
 
-        moves = [c for c in CENTRE_ORDER if not b.mask & (1 << (c * 7 + 5))]
+        moves = [c for c in CENTRE_ORDER if not b.mask & TOP[c]]
         if tt_move in moves:
             moves.remove(tt_move)
             moves.insert(0, tt_move)
@@ -76,7 +76,8 @@ class MinimaxAgent(BaseAgent):
             if alpha >= beta:
                 break
 
-        if self.use_tt:
+        # mate scores embed remaining depth; never cache or reuse them (stale distances)
+        if self.use_tt and -WIN < best < WIN:
             flag = UPPER if best <= alpha0 else LOWER if best >= beta else EXACT
             self._tt[key] = (depth, int(best), flag, best_move)
         return best

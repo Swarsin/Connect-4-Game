@@ -98,21 +98,21 @@ def main(argv: list[str] | None = None) -> None:
     new_games: list[GameRecord] = []
     for opp in a.arena or []:
         t = time.time()
-        res = arena_net(ev, agent, opp, a.arena_sims, params, a.arena_openings, seed=a.seed,
-                        shared_opponent=True)  # fmt: skip
-        new_games += res.games
-        summary["arena"][opp] = {"a_wins": res.a_wins, "draws": res.draws, "b_wins": res.b_wins,
-                                 "score": res.a_score}  # fmt: skip
-        print(f"[arena] {res.summary()} ({time.time() - t:.0f}s)")
+        arena_res = arena_net(ev, agent, opp, a.arena_sims, params, a.arena_openings, seed=a.seed,
+                              shared_opponent=True)  # fmt: skip
+        new_games += arena_res.games
+        summary["arena"][opp] = {"a_wins": arena_res.a_wins, "draws": arena_res.draws,
+                                 "b_wins": arena_res.b_wins, "score": arena_res.a_score}  # fmt: skip
+        print(f"[arena] {arena_res.summary()} ({time.time() - t:.0f}s)")
 
     if a.solver_games:
         t = time.time()
-        res = arena_net(ev, agent, "solver", a.arena_sims, params, [""] * a.solver_games,
-                        seed=a.seed, shared_opponent=True)  # fmt: skip
-        new_games += res.games
+        solver_res = arena_net(ev, agent, "solver", a.arena_sims, params, [""] * a.solver_games,
+                               seed=a.seed, shared_opponent=True)  # fmt: skip
+        new_games += solver_res.games
         per_colour = {}
         for first in (True, False):
-            gs = [g for g in res.games if (g.first == agent) == first]
+            gs = [g for g in solver_res.games if (g.first == agent) == first]
             wins = sum(1 for g in gs if g.winner == (1 if first else 2))
             losses = sum(1 for g in gs if g.winner == (2 if first else 1))
             lengths = [len(g.moves) for g in gs]
@@ -127,7 +127,7 @@ def main(argv: list[str] | None = None) -> None:
         out = RESULTS / "vs_solver" / f"{_safe(name)}.json"
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(json.dumps({"agent": agent, **per_colour}, indent=1))
-        print(f"[solver] {len(res.games)} games ({time.time() - t:.0f}s)")
+        print(f"[solver] {len(solver_res.games)} games ({time.time() - t:.0f}s)")
 
     if new_games:
         save_games(new_games, games_path)

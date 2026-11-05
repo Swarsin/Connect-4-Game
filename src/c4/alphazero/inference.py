@@ -12,6 +12,8 @@ The copy is a *snapshot* of the weights at construction time.
 
 from __future__ import annotations
 
+from typing import cast
+
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -20,6 +22,8 @@ from c4.alphazero.network import C4Net
 
 
 def _fold(conv: nn.Conv2d, bn: nn.BatchNorm2d) -> tuple[torch.Tensor, torch.Tensor]:
+    assert bn.weight is not None and bn.bias is not None  # BatchNorm2d is always affine here
+    assert bn.running_var is not None and bn.running_mean is not None
     w = conv.weight.detach()
     scale = bn.weight.detach() / torch.sqrt(bn.running_var.detach() + bn.eps)
     w = w * scale.reshape(-1, 1, 1, 1)
@@ -29,20 +33,31 @@ def _fold(conv: nn.Conv2d, bn: nn.BatchNorm2d) -> tuple[torch.Tensor, torch.Tens
     return w.contiguous(), b.contiguous()
 
 
+def _fold_modules(conv: object, bn: object) -> tuple[torch.Tensor, torch.Tensor]:
+    """Narrow ``nn.Sequential``/``ModuleList`` lookups to the modules used by ``C4Net``."""
+    assert isinstance(conv, nn.Conv2d) and isinstance(bn, nn.BatchNorm2d)
+    return _fold(conv, bn)
+
+
 class FusedNet(nn.Module):
     def __init__(self, net: C4Net) -> None:
         super().__init__()
         net = net.eval()
         p: list[torch.Tensor] = []
-        p += _fold(net.stem[0], net.stem[1])
+        p += _fold_modules(net.stem[0], net.stem[1])
         for blk in net.blocks:
-            p += _fold(blk.c1, blk.b1)
-            p += _fold(blk.c2, blk.b2)
-        p += _fold(net.policy_head[0], net.policy_head[1])
-        p += [net.policy_head[4].weight.detach(), net.policy_head[4].bias.detach()]
-        p += _fold(net.value_head[0], net.value_head[1])
-        p += [net.value_head[4].weight.detach(), net.value_head[4].bias.detach()]
-        p += [net.value_head[6].weight.detach(), net.value_head[6].bias.detach()]
+            p += _fold_modules(blk.c1, blk.b1)
+            p += _fold_modules(blk.c2, blk.b2)
+        p += _fold_modules(net.policy_head[0], net.policy_head[1])
+        policy_fc = cast(nn.Linear, net.policy_head[4])
+        assert policy_fc.bias is not None  # Linear layers are constructed with bias
+        p += [policy_fc.weight.detach(), policy_fc.bias.detach()]
+        p += _fold_modules(net.value_head[0], net.value_head[1])
+        value_fc1 = cast(nn.Linear, net.value_head[4])
+        value_fc2 = cast(nn.Linear, net.value_head[6])
+        assert value_fc1.bias is not None and value_fc2.bias is not None
+        p += [value_fc1.weight.detach(), value_fc1.bias.detach()]
+        p += [value_fc2.weight.detach(), value_fc2.bias.detach()]
         self.params = nn.ParameterList([nn.Parameter(t.clone(), requires_grad=False) for t in p])
         self.n_blocks = len(net.blocks)
 

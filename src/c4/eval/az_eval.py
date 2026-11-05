@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, TypedDict
 
 import numpy as np
 
-from c4.agents import make_agent
+from c4.agents import Agent, make_agent
 from c4.alphazero.mcts import Evaluator, SearchParams, new_root, run_search
 from c4.engine import Board
 from c4.eval.arena import GameRecord, MatchResult
@@ -15,9 +15,16 @@ from c4.eval.benchmark import BenchItem, score_predictions
 from c4.eval.openings import get_openings
 
 
+class _Game(TypedDict):
+    b: Board
+    first: bool
+    opp: Agent
+    opening: str
+
+
 def _argmax(x: Sequence[float], rng: np.random.Generator) -> int:
     a = np.asarray(x, dtype=np.float64)
-    return int(rng.choice(np.flatnonzero(a == a.max())))
+    return int(rng.choice(np.flatnonzero(a == np.max(a))))
 
 
 def net_moves(
@@ -72,12 +79,12 @@ def arena_net(
     ops = get_openings(openings) if isinstance(openings, str) else list(openings)
     rng = np.random.default_rng(seed)
     shared = make_agent(opponent, seed=seed) if shared_opponent else None
-    games = []
+    games: list[_Game] = []
     for k, (o, net_first) in enumerate((o, f) for o in ops for f in (True, False)):
         opp = shared if shared is not None else make_agent(opponent, seed=seed + k)
         games.append({"b": Board.from_moves(o), "first": net_first, "opp": opp, "opening": o})
 
-    active = [g for g in games if not g["b"].is_terminal()]
+    active: list[_Game] = [g for g in games if not g["b"].is_terminal()]
     while active:
         net_turn = [g for g in active if (g["b"].player_to_move() == 1) == g["first"]]
         if net_turn:
@@ -96,6 +103,7 @@ def arena_net(
     for g in games:
         b = g["b"]
         w = b.winner()
+        assert w is not None  # every game is terminal once the loop above finishes
         first, second = (name, opponent) if g["first"] else (opponent, name)
         res.games.append(GameRecord(first, second, g["opening"], b.to_moves(), w))
         if w == 0:

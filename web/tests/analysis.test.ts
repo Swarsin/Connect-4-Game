@@ -106,6 +106,16 @@ describe("real agents feed the display", () => {
     expect(n.priors[0]).toBeGreaterThan(0.99);
   });
 
+  it("does not reuse stale mate scores across minimax analyses", () => {
+    const line = ["37611143156552217767", "376111431565522177674", "3761114315655221776745"];
+    const tt = new MinimaxAgent(4, 0, true);
+    const nt = new MinimaxAgent(4, 0, false);
+    for (const moves of [...line].reverse()) {
+      const b = Board.fromMoves(moves);
+      expect(tt.analyze(b)).toEqual(nt.analyze(b));
+    }
+  });
+
   it("uct reports a forced win as ~1 for the side to move", () => {
     const b = Board.fromMoves("121212");
     const agent = new UctAgent(600, Math.SQRT2, 0, true);

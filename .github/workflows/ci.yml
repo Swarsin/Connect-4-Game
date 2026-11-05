@@ -29,6 +29,8 @@ jobs:
         run: |
           ruff check .
           ruff format --check .
+      - name: Typecheck
+        run: mypy .
       - name: Test
         run: pytest -m "not slow and not solver"
 

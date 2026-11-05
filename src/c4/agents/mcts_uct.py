@@ -14,7 +14,7 @@ import math
 from typing import Any
 
 from c4.agents.base import BaseAgent
-from c4.engine import Board
+from c4.engine import TOP, WIDTH, Board
 
 
 class _Node:
@@ -62,7 +62,7 @@ class MCTSAgent(BaseAgent):
     def _rollout(self, b: Board) -> int:
         rng = self.rng
         while not b.is_terminal():
-            moves = b.legal_moves()
+            moves = [c for c in range(WIDTH) if not b.mask & TOP[c]]
             if self.smart_rollouts:
                 win = b.winning_moves(True)
                 if win:
@@ -102,6 +102,7 @@ class MCTSAgent(BaseAgent):
             node, b = root, board.copy()
             while not node.untried and node.children:
                 node = node.uct_child(self.c)
+                assert node.move is not None  # children always have a move; only the root has None
                 b.play_unchecked(node.move)
             if node.untried:
                 col = node.untried.pop(rng.randrange(len(node.untried)))
@@ -110,25 +111,34 @@ class MCTSAgent(BaseAgent):
                 node.children.append(child)
                 node = child
             winner = self._rollout(b)
-            while node is not None:
-                node.visits += 1
+            walker: _Node | None = node
+            while walker is not None:
+                walker.visits += 1
                 if winner == 0:
-                    node.wins += 0.5
-                elif winner == node.just_moved:
-                    node.wins += 1.0
-                node = node.parent
+                    walker.wins += 0.5
+                elif winner == walker.just_moved:
+                    walker.wins += 1.0
+                walker = walker.parent
         return root
 
     def select_move(self, board: Board) -> int:
+        if board.is_terminal():
+            raise ValueError("cannot select a move: position is terminal")
         root = self.search(board)
         most = max(ch.visits for ch in root.children)
-        return self.rng.choice(sorted(ch.move for ch in root.children if ch.visits == most))
+        moves: list[int] = []
+        for ch in root.children:
+            if ch.visits == most:
+                assert ch.move is not None  # children always have a move; only the root has None
+                moves.append(ch.move)
+        return self.rng.choice(sorted(moves))
 
     def analyze(self, board: Board) -> dict[str, Any]:
         root = self.search(board)
         visits = [0] * 7
         q: list[float | None] = [None] * 7
         for ch in root.children:
+            assert ch.move is not None  # children always have a move; only the root has None
             visits[ch.move] = ch.visits
             q[ch.move] = ch.wins / ch.visits
         return {"visits": visits, "q": q}

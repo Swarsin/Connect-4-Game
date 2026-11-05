@@ -65,6 +65,16 @@ describe("minimax", () => {
     }
   });
 
+  it("does not return stale mate scores from a reused transposition table", () => {
+    const line = ["37611143156552217767", "376111431565522177674", "3761114315655221776745"];
+    const tt = new MinimaxAgent(4, 0, true);
+    const nt = new MinimaxAgent(4, 0, false);
+    for (const moves of [...line].reverse()) {
+      const b = Board.fromMoves(moves);
+      expect(tt.moveScores(b)).toEqual(nt.moveScores(b));
+    }
+  });
+
   it("beats random at depth 4", () => {
     const mm = new MinimaxAgent(4, 0);
     const rnd = new RandomAgent();
